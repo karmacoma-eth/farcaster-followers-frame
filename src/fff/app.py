@@ -131,7 +131,7 @@ def from_grpc(fid: int) -> pd.Series:
     return pd.concat(series)
 
 
-def generate_png(data: pd.Series, title: str) -> BytesIO:
+def generate_png(data: pd.Series, title: str, xaxis: bool = True) -> BytesIO:
     sns.set_style("whitegrid")
     sns.set_context("talk")
     # sns.despine(left=True, bottom=False)
@@ -145,8 +145,11 @@ def generate_png(data: pd.Series, title: str) -> BytesIO:
     plt.title(title)
     # plt.gca().set_facecolor('#333333')  # Set background color
     plt.grid(False)  # No grid
-    # plt.xticks([])  # No x-axis ticks
     plt.box(False)  # No box around the plot
+
+    if not xaxis:
+         # No x-axis ticks
+        plt.xticks([])
 
     plt.tight_layout()
 
