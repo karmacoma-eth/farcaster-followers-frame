@@ -10,6 +10,7 @@
 -e file:.
 annotated-types==0.6.0
 anyio==4.2.0
+click==8.1.7
 contourpy==1.2.0
 cycler==0.12.1
 fastapi==0.109.2
@@ -24,10 +25,12 @@ packaging==23.2
 pandas==2.2.0
 pillow==10.2.0
 protobuf==4.25.2
+protoletariat==3.2.19
 pydantic==2.6.1
 pydantic-core==2.16.2
 pyparsing==3.1.1
 python-dateutil==2.8.2
+python-dotenv==1.0.1
 pytz==2024.1
 seaborn==0.13.2
 six==1.16.0

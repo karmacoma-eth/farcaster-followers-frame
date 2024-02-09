@@ -8,6 +8,7 @@ authors = [
 dependencies = [
     "fastapi>=0.109.2",
     "seaborn>=0.13.2",
+    "python-dotenv>=1.0.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -23,6 +24,7 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = [
     "grpcio-tools>=1.60.1",
+    "protoletariat>=3.2.19",
 ]
 
 [tool.hatch.metadata]
