@@ -89,8 +89,9 @@ def from_grpc_data(response: MessagesResponse, follower_count = 0) -> pd.Series:
         if follower_count < 0:
             logger.error(f'Negative follower count: {follower_count}')
 
-        # TODO: convert to unix timestamp
-        timestamp = pd.to_datetime(data.timestamp, unit='s')
+        fc_timestamp = data.timestamp
+        unix_timestamp = to_unix_timestamp(fc_timestamp)
+        timestamp = pd.to_datetime(unix_timestamp, unit='s')
         follower_counts[timestamp] = follower_count
 
     # turn into a pandas series and sort by index
