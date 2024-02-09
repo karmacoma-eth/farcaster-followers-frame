@@ -140,6 +140,7 @@ def generate_png(data: pd.Series, title: str) -> BytesIO:
 
     buffer = BytesIO()
     plt.savefig(buffer, dpi=dpi, bbox_inches='tight', format='png')
+    plt.close()
     buffer.seek(0)
     return buffer
 
