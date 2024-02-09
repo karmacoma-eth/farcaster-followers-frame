@@ -13,7 +13,7 @@ class HubServiceStub(object):
     """Note about http-api annotations:
     The `httpServer.ts` class implements a HTTP API wrapper on top of this gRPC API.
     The annotations below are used to verify that all the HTTP API endpoints are implemented.
-    If you are adding a new RPC method, if there needs to be a corresponding HTTP API endpoint, 
+    If you are adding a new RPC method, if there needs to be a corresponding HTTP API endpoint,
     add the annotation to the method. @http-api: none means that there is no corresponding HTTP API
     If there is no annotation, we assume there is a corresponding HTTP API endpoint with the same name as the RPC method
     Please see `httpServer.ts` for more details
@@ -227,7 +227,7 @@ class HubServiceServicer(object):
     """Note about http-api annotations:
     The `httpServer.ts` class implements a HTTP API wrapper on top of this gRPC API.
     The annotations below are used to verify that all the HTTP API endpoints are implemented.
-    If you are adding a new RPC method, if there needs to be a corresponding HTTP API endpoint, 
+    If you are adding a new RPC method, if there needs to be a corresponding HTTP API endpoint,
     add the annotation to the method. @http-api: none means that there is no corresponding HTTP API
     If there is no annotation, we assume there is a corresponding HTTP API endpoint with the same name as the RPC method
     Please see `httpServer.ts` for more details
@@ -429,7 +429,7 @@ class HubServiceServicer(object):
 
     def GetAllCastMessagesByFid(self, request, context):
         """Bulk Methods
-        The Bulk methods don't have corresponding HTTP API endpoints because the 
+        The Bulk methods don't have corresponding HTTP API endpoints because the
         regular endpoints can be used to get all the messages
         @http-api: none
         """
@@ -466,7 +466,7 @@ class HubServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetInfo(self, request, context):
-        """Sync Methods  
+        """Sync Methods
         Outside the "info" RPC, the HTTP API doesn't implement any of the sync methods
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -717,7 +717,7 @@ class HubService(object):
     """Note about http-api annotations:
     The `httpServer.ts` class implements a HTTP API wrapper on top of this gRPC API.
     The annotations below are used to verify that all the HTTP API endpoints are implemented.
-    If you are adding a new RPC method, if there needs to be a corresponding HTTP API endpoint, 
+    If you are adding a new RPC method, if there needs to be a corresponding HTTP API endpoint,
     add the annotation to the method. @http-api: none means that there is no corresponding HTTP API
     If there is no annotation, we assume there is a corresponding HTTP API endpoint with the same name as the RPC method
     Please see `httpServer.ts` for more details
