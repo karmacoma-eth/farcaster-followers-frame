@@ -8,8 +8,8 @@ import seaborn as sns
 
 from dotenv import load_dotenv
 from fff.grpc import rpc_pb2_grpc as hub
-from fff.grpc.request_response_pb2 import LinksByTargetRequest, MessagesResponse
-from fff.grpc.message_pb2 import MESSAGE_TYPE_LINK_ADD, MESSAGE_TYPE_LINK_REMOVE, FARCASTER_NETWORK_MAINNET
+from fff.grpc.request_response_pb2 import LinksByTargetRequest, MessagesResponse, UserDataRequest
+from fff.grpc.message_pb2 import MESSAGE_TYPE_LINK_ADD, MESSAGE_TYPE_LINK_REMOVE, FARCASTER_NETWORK_MAINNET, USER_DATA_TYPE_DISPLAY
 from io import BytesIO
 
 load_dotenv()
@@ -55,9 +55,8 @@ def from_json_file(input_filename: str) -> pd.Series:
         return from_json_data(data)
 
 
-def from_grpc_data(response: MessagesResponse) -> pd.Series:
+def from_grpc_data(response: MessagesResponse, follower_count = 0) -> pd.Series:
     follower_counts = dict()
-    follower_count = 0
 
     messages = response.messages
     logger.info(f'Loaded {len(messages)} messages')
@@ -88,23 +87,28 @@ def from_grpc_data(response: MessagesResponse) -> pd.Series:
     return pd.Series(follower_counts).sort_index()
 
 
-def from_grpc(fid: int) -> pd.Series:
+def get_hub_rpc() -> str:
     hub_rpc = os.getenv('HUB_RPC', None)
     if not hub_rpc:
         raise ValueError('HUB_RPC environment variable not set')
 
+    return hub_rpc
+
+
+def from_grpc(fid: int) -> pd.Series:
     series = []
-    with grpc.insecure_channel(hub_rpc) as channel:
+    with grpc.insecure_channel(get_hub_rpc()) as channel:
         stub = hub.HubServiceStub(channel)
         page_token = None
+        follower_count = 0
 
         while True:
             request = LinksByTargetRequest(target_fid=fid, page_token=page_token)
             response: MessagesResponse = stub.GetLinksByTarget(request)
-            series.append(from_grpc_data(response))
-            print(series[-1])
+            series.append(from_grpc_data(response, follower_count))
 
             if page_token := response.next_page_token:
+                follower_count += len(response.messages)
                 continue
 
             break
@@ -140,18 +144,32 @@ def generate_png(data: pd.Series, title: str) -> BytesIO:
     return buffer
 
 
+# example response:
+#
+#   data {
+#     type: MESSAGE_TYPE_USER_DATA_ADD
+#     fid: 10502
+#     timestamp: 97867817
+#     network: FARCASTER_NETWORK_MAINNET
+#     user_data_body {
+#       type: USER_DATA_TYPE_DISPLAY
+#       value: "karmacoma"
+#     }
+#   }
+#
+def get_username(fid: int) -> str:
+    with grpc.insecure_channel(get_hub_rpc()) as channel:
+        stub = hub.HubServiceStub(channel)
+        request = UserDataRequest(fid=fid, user_data_type=USER_DATA_TYPE_DISPLAY)
+        response = stub.GetUserData(request)
+        return response.data.user_data_body.value
+
+
 def main():
     import sys
 
     user_input = sys.argv[1]
-
-    if os.path.exists(user_input):
-        dataset = from_json_file(user_input)
-
-    else:
-        dataset = from_grpc(int(user_input))
-
-    print(dataset)
+    dataset = from_json_file(user_input) if os.path.exists(user_input) else from_grpc(int(user_input))
 
     title = f'Follower count for {user_input}'
     output_filename = user_input.replace('.json', '.png')
