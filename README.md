@@ -1,6 +1,16 @@
 # farcaster-followers-frame
 
-Describe your project here.
+[Try it in warpcast](https://warpcast.com/karma/0x503694fc)
+
+## How does it work?
+
+* user clicks on the `get my data` button
+* the app receives a POST to `/followers` with the `fid` of the user
+* we hit the gRPC API of a Farcaster hub and makes a `LinksByTargetRequest` with the user's `fid`
+* we receive a list of messages and increment the follower count for every `MESSAGE_TYPE_LINK_ADD` and decrement it for every `MESSAGE_TYPE_LINK_REMOVE`
+* we create a `pandas.Series` object using the `timestamp` of the messages and the follower count
+* we plot the series using `seaborn`/`matplotlib`
+* we render the graph as a png and return it
 
 
 ## GRPC API
