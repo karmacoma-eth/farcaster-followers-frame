@@ -57,7 +57,9 @@ def root(request: Request):
         ),
     )
 
-@app.get("/followers")
+
+@app.get("/followers") # for local testing
+@app.post("/followers") # for actual Frame usage
 async def followers(request: Request, f: int = None):
     """
     Get the follower data
