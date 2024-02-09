@@ -64,7 +64,7 @@ def root(request: Request):
 
 @app.get("/followers") # for local testing
 @app.post("/followers") # for actual Frame usage
-async def followers(request: Request, fid: int = None):
+async def followers(request: Request, fid: int = None, xaxis: int = 1):
     """
     Get the follower data
     """
@@ -98,7 +98,7 @@ async def followers(request: Request, fid: int = None):
     followers_url = URL(base_url) / "followers"
 
     # add the timestamp to the URL to bust any caches
-    followers_image_url = URL(base_url) / "followers_image" / f"{fid}" % {'ts': ts}
+    followers_image_url = URL(base_url) / "followers_image" / f"{fid}" % {'ts': ts, 'xaxis': xaxis}
 
     return HTMLResponse(
         status_code=200,
@@ -127,7 +127,7 @@ async def followers(request: Request, fid: int = None):
 
 
 @app.get("/followers_image/{fid}")
-async def followers_image(fid: int):
+async def followers_image(fid: int, xaxis: int = 1):
     """
     Get the follower data as an image
     """
@@ -139,6 +139,6 @@ async def followers_image(fid: int):
             content="fid {fid} not found",
         )
     username = get_username(fid)
-    png = generate_png(data, f"@{username}'s followers")
+    png = generate_png(data, f"@{username}'s followers", xaxis=xaxis != 0)
 
     return StreamingResponse(io.BytesIO(png.getvalue()), media_type="image/png")
