@@ -15,6 +15,7 @@ contourpy==1.2.0
 cycler==0.12.1
 fastapi==0.109.2
 fonttools==4.48.1
+grpcio==1.60.1
 h11==0.14.0
 idna==3.6
 kiwisolver==1.4.5
