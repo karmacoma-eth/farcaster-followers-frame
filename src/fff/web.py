@@ -127,12 +127,17 @@ async def followers(request: Request, fid: int = None):
 
 
 @app.get("/followers_image/{fid}")
-async def followers_image(fid: int, request: Request):
+async def followers_image(fid: int):
     """
     Get the follower data as an image
     """
 
     data = from_grpc(fid)
+    if not data:
+        return HTMLResponse(
+            status_code=404,
+            content="fid {fid} not found",
+        )
     username = get_username(fid)
     png = generate_png(data, f"@{username}'s followers")
 

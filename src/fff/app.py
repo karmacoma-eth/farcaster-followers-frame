@@ -104,7 +104,12 @@ def from_grpc(fid: int) -> pd.Series:
 
         while True:
             request = LinksByTargetRequest(target_fid=fid, page_token=page_token)
-            response: MessagesResponse = stub.GetLinksByTarget(request)
+            try:
+                response: MessagesResponse = stub.GetLinksByTarget(request)
+            except grpc.RpcError as e:
+                logger.error(f'Error fetching followers for fid {fid}: {e}')
+                break
+
             series.append(from_grpc_data(response, follower_count))
 
             if page_token := response.next_page_token:
