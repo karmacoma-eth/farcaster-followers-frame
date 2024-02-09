@@ -9,6 +9,7 @@ import seaborn as sns
 from dotenv import load_dotenv
 from fff.grpc import rpc_pb2_grpc as hub
 from fff.grpc.request_response_pb2 import LinksByTargetRequest
+from io import BytesIO
 
 load_dotenv()
 
@@ -75,6 +76,33 @@ def from_grpc(fid: int) -> pd.Series:
 
             break
 
+def generate_png(data: pd.Series, title: str) -> BytesIO:
+    sns.set_style("whitegrid")
+    sns.set_context("talk")
+    sns.despine(left=True, bottom=True)
+
+    # Create the plot
+    figure_size_inches = 8
+    plt.figure(figsize=(figure_size_inches, figure_size_inches))
+    plt.fill_between(data.index, data, color="green", alpha=0.3)  # Fill under the line
+    plt.plot(data.index, data, color="green", linewidth=2)  # Smooth line
+
+    plt.title(title)
+    # plt.gca().set_facecolor('#333333')  # Set background color
+    plt.grid(False)  # No grid
+    plt.xticks([])  # No x-axis ticks
+    plt.box(False)  # No box around the plot
+
+    plt.tight_layout()
+
+    # Target size in pixels divided by figure size in inches
+    dpi = 1024 / figure_size_inches
+
+    buffer = BytesIO()
+    plt.savefig(buffer, dpi=dpi, bbox_inches='tight', format='png')
+    buffer.seek(0)
+    return buffer
+
 
 def main():
     import sys
@@ -86,35 +114,14 @@ def main():
 
     else:
         dataset = from_grpc(int(user_input))
-        return
 
-
-    sns.set_style("whitegrid")
-    sns.set_context("talk")
-    # sns.lineplot(data=dataset, marker=None)
-    sns.despine(left=True, bottom=True)
-
-    # Create the plot
-    figure_size_inches = 8
-    plt.figure(figsize=(figure_size_inches, figure_size_inches))
-    plt.fill_between(dataset.index, dataset, color="green", alpha=0.3)  # Fill under the line
-    plt.plot(dataset.index, dataset, color="green", linewidth=2)  # Smooth line
-
-    plt.title(user_input)
-    # plt.gca().set_facecolor('#333333')  # Set background color
-    plt.grid(False)  # No grid
-    plt.xticks([])  # No x-axis ticks
-    # plt.yticks([])  # No y-axis ticks
-    plt.box(False)  # No box around the plot
-
-    plt.tight_layout()
-
-    # Target size in pixels divided by figure size in inches
-    dpi = 1024 / figure_size_inches
+    title = f'Follower count for {user_input}'
     output_filename = user_input.replace('.json', '.png')
-    plt.savefig(output_filename, dpi=dpi, bbox_inches='tight', format='png')
+
+    buffer = generate_png(dataset, title)
+    with open(output_filename, 'wb') as f:
+        f.write(buffer.read())
     print(f'Output written to {output_filename}')
-    # plt.show()
 
 
 if __name__ == '__main__':
