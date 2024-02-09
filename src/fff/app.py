@@ -12,10 +12,18 @@ from fff.grpc.request_response_pb2 import LinksByTargetRequest, MessagesResponse
 from fff.grpc.message_pb2 import MESSAGE_TYPE_LINK_ADD, MESSAGE_TYPE_LINK_REMOVE, FARCASTER_NETWORK_MAINNET, USER_DATA_TYPE_DISPLAY, USER_DATA_TYPE_USERNAME
 from io import BytesIO
 
+# https://github.com/farcasterxyz/protocol/blob/main/docs/SPECIFICATION.md#timestamps
+# Jan 1, 2021 00:00:00 UTC
+FARCASTER_EPOCH = 1609488000
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+
+def to_unix_timestamp(fc_timestamp: int) -> int:
+    return fc_timestamp + FARCASTER_EPOCH
 
 
 def from_json_data(data: dict) -> pd.Series:
@@ -42,7 +50,8 @@ def from_json_data(data: dict) -> pd.Series:
         if follower_count < 0:
             logger.error(f'Negative follower count: {follower_count}')
 
-        timestamp = pd.to_datetime(data['timestamp'], unit='s')
+        unix_ts = to_unix_timestamp(data['timestamp'])
+        timestamp = pd.to_datetime(unix_ts, unit='s')
         follower_counts[timestamp] = follower_count
 
     # turn into a pandas series and sort by index
@@ -80,6 +89,7 @@ def from_grpc_data(response: MessagesResponse, follower_count = 0) -> pd.Series:
         if follower_count < 0:
             logger.error(f'Negative follower count: {follower_count}')
 
+        # TODO: convert to unix timestamp
         timestamp = pd.to_datetime(data.timestamp, unit='s')
         follower_counts[timestamp] = follower_count
 
@@ -124,7 +134,7 @@ def from_grpc(fid: int) -> pd.Series:
 def generate_png(data: pd.Series, title: str) -> BytesIO:
     sns.set_style("whitegrid")
     sns.set_context("talk")
-    sns.despine(left=True, bottom=True)
+    # sns.despine(left=True, bottom=False)
 
     # Create the plot
     figure_size_inches = 8
@@ -135,7 +145,7 @@ def generate_png(data: pd.Series, title: str) -> BytesIO:
     plt.title(title)
     # plt.gca().set_facecolor('#333333')  # Set background color
     plt.grid(False)  # No grid
-    plt.xticks([])  # No x-axis ticks
+    # plt.xticks([])  # No x-axis ticks
     plt.box(False)  # No box around the plot
 
     plt.tight_layout()
