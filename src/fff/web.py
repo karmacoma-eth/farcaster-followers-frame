@@ -80,13 +80,12 @@ async def followers(request: Request, fid: int = None, xaxis: int = 1):
 
     elif content_type == "application/x-www-form-urlencoded":
         body = await request.form()
-        print(body)
         fid = int(body.get("fid"))
 
     else:
         return HTMLResponse(
             status_code=400,
-            content="Invalid content type",
+            content=f"Invalid content type {content_type}",
         )
 
     if not fid:

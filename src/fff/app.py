@@ -133,17 +133,19 @@ def from_grpc(fid: int) -> pd.Series:
 
 
 def generate_png(data: pd.Series, title: str, xaxis: bool = True) -> BytesIO:
-    sns.set_style("whitegrid")
-    sns.set_context("talk")
+    # sns.set_style("whitegrid")
+    # sns.set_context("talk")
     # sns.despine(left=True, bottom=False)
+
 
     # Create the plot
     figure_size_inches = 8
-    plt.figure(figsize=(figure_size_inches, figure_size_inches))
+    fig = plt.figure(figsize=(figure_size_inches, figure_size_inches))
     plt.fill_between(data.index, data, color="green", alpha=0.3)  # Fill under the line
     plt.plot(data.index, data, color="green", linewidth=2)  # Smooth line
 
-    plt.title(title)
+    title_font = {'fontname':'Roboto', 'size':'16', 'color':'black', 'weight':'bold'}
+    plt.title(title, **title_font)
     # plt.gca().set_facecolor('#333333')  # Set background color
     plt.grid(False)  # No grid
     plt.box(False)  # No box around the plot
@@ -155,7 +157,7 @@ def generate_png(data: pd.Series, title: str, xaxis: bool = True) -> BytesIO:
     plt.tight_layout()
 
     # Target size in pixels divided by figure size in inches
-    dpi = 1024 / figure_size_inches
+    dpi = 2048 / figure_size_inches
 
     buffer = BytesIO()
     plt.savefig(buffer, dpi=dpi, bbox_inches='tight', format='png')
