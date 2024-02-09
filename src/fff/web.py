@@ -111,6 +111,7 @@ async def followers(request: Request, fid: int = None):
                     <meta property="og:title" content="Got followers?" />
                     <meta property="og:image" content="{followers_image_url}" />
                     <meta property="fc:frame:image" content="{followers_image_url}" />
+                    <meta property="fc:frame:image:aspect_ratio" content="1:1" />
                     <meta property="fc:frame" content="vNext" />
                     <meta property="fc:frame:button:1" content="Reload" />
                     <meta property="fc:frame:post_url" content="{followers_url}" />
