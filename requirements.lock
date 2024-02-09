@@ -31,6 +31,7 @@ pydantic-core==2.16.2
 pyparsing==3.1.1
 python-dateutil==2.8.2
 python-dotenv==1.0.1
+python-multipart==0.0.7
 pytz==2024.1
 seaborn==0.13.2
 six==1.16.0

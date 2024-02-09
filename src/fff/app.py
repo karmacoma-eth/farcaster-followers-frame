@@ -9,7 +9,7 @@ import seaborn as sns
 from dotenv import load_dotenv
 from fff.grpc import rpc_pb2_grpc as hub
 from fff.grpc.request_response_pb2 import LinksByTargetRequest, MessagesResponse, UserDataRequest
-from fff.grpc.message_pb2 import MESSAGE_TYPE_LINK_ADD, MESSAGE_TYPE_LINK_REMOVE, FARCASTER_NETWORK_MAINNET, USER_DATA_TYPE_DISPLAY
+from fff.grpc.message_pb2 import MESSAGE_TYPE_LINK_ADD, MESSAGE_TYPE_LINK_REMOVE, FARCASTER_NETWORK_MAINNET, USER_DATA_TYPE_DISPLAY, USER_DATA_TYPE_USERNAME
 from io import BytesIO
 
 load_dotenv()
@@ -157,10 +157,18 @@ def generate_png(data: pd.Series, title: str) -> BytesIO:
 #     }
 #   }
 #
-def get_username(fid: int) -> str:
+def get_displayname(fid: int) -> str:
     with grpc.insecure_channel(get_hub_rpc()) as channel:
         stub = hub.HubServiceStub(channel)
         request = UserDataRequest(fid=fid, user_data_type=USER_DATA_TYPE_DISPLAY)
+        response = stub.GetUserData(request)
+        return response.data.user_data_body.value
+
+
+def get_username(fid: int) -> str:
+    with grpc.insecure_channel(get_hub_rpc()) as channel:
+        stub = hub.HubServiceStub(channel)
+        request = UserDataRequest(fid=fid, user_data_type=USER_DATA_TYPE_USERNAME)
         response = stub.GetUserData(request)
         return response.data.user_data_body.value
 

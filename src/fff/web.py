@@ -51,6 +51,10 @@ def root(request: Request):
                     <div>
                         <img src="{banner_url}" alt="Got followers?" style="width: 100%; max-width: 1024px;">
                     </div>
+                    <form action="{followers_url}" method="post">
+                        <input type="text" name="fid" placeholder="fid">
+                        <input type="submit" value="{followers_label}">
+                    </form>
                 </body>
             </html>
         """
@@ -60,7 +64,7 @@ def root(request: Request):
 
 @app.get("/followers") # for local testing
 @app.post("/followers") # for actual Frame usage
-async def followers(request: Request, f: int = None):
+async def followers(request: Request, fid: int = None):
     """
     Get the follower data
     """
@@ -68,14 +72,22 @@ async def followers(request: Request, f: int = None):
     base_url = str(request.base_url)
 
     content_type = request.headers.get("content-type")
-    fid = None
     ts = int(time.time())
 
     if content_type == "application/json":
         body = await request.json()
         fid: int = body["untrustedData"]["fid"]
 
-    fid = fid or f
+    elif content_type == "application/x-www-form-urlencoded":
+        body = await request.form()
+        print(body)
+        fid = int(body.get("fid"))
+
+    else:
+        return HTMLResponse(
+            status_code=400,
+            content="Invalid content type",
+        )
 
     if not fid:
         return HTMLResponse(
@@ -120,7 +132,7 @@ async def followers_image(fid: int, request: Request):
     """
 
     data = from_grpc(fid)
-    display_name = get_username(fid)
-    png = generate_png(data, f"{display_name}'s followers")
+    username = get_username(fid)
+    png = generate_png(data, f"@{username}'s followers")
 
     return StreamingResponse(io.BytesIO(png.getvalue()), media_type="image/png")
