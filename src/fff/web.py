@@ -133,7 +133,7 @@ async def followers_image(fid: int):
     """
 
     data = from_grpc(fid)
-    if not data:
+    if data.empty:
         return HTMLResponse(
             status_code=404,
             content="fid {fid} not found",
