@@ -25,6 +25,7 @@ numpy==1.26.4
 packaging==23.2
 pandas==2.2.0
 pillow==10.2.0
+protobuf==4.25.2
 pydantic==2.6.1
 pydantic-core==2.16.2
 pyparsing==3.1.1
