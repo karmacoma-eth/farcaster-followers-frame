@@ -11,6 +11,7 @@ from fff.grpc import rpc_pb2_grpc as hub
 from fff.grpc.request_response_pb2 import LinksByTargetRequest, MessagesResponse, UserDataRequest
 from fff.grpc.message_pb2 import MESSAGE_TYPE_LINK_ADD, MESSAGE_TYPE_LINK_REMOVE, FARCASTER_NETWORK_MAINNET, USER_DATA_TYPE_DISPLAY, USER_DATA_TYPE_USERNAME
 from io import BytesIO
+from typing import Tuple
 
 # https://github.com/farcasterxyz/protocol/blob/main/docs/SPECIFICATION.md#timestamps
 # Jan 1, 2021 00:00:00 UTC
@@ -132,11 +133,10 @@ def from_grpc(fid: int) -> pd.Series:
     return pd.concat(series)
 
 
-def generate_png(data: pd.Series, title: str, xaxis: bool = True) -> BytesIO:
+def generate_png(data: pd.Series, title: str, xaxis: bool = True, logscale: bool = False) -> BytesIO:
     # sns.set_style("whitegrid")
     # sns.set_context("talk")
     # sns.despine(left=True, bottom=False)
-
 
     # Create the plot
     figure_size_inches = 8
@@ -149,6 +149,9 @@ def generate_png(data: pd.Series, title: str, xaxis: bool = True) -> BytesIO:
     # plt.gca().set_facecolor('#333333')  # Set background color
     plt.grid(False)  # No grid
     plt.box(False)  # No box around the plot
+
+    if logscale:
+        plt.yscale('log', base=10)
 
     if not xaxis:
          # No x-axis ticks
@@ -195,14 +198,29 @@ def get_username(fid: int) -> str:
         return response.data.user_data_body.value
 
 
+def load(user_input: str) -> Tuple[pd.Series, str, str]:
+    if os.path.exists(user_input):
+        print(f'Loading data from {user_input}')
+        dataset = from_json_file(user_input)
+        title = f'Follower count for {user_input}'
+        output_filename = user_input.replace('.json', '.png')
+        return dataset, title, output_filename
+
+    else:
+        print(f'Loading data from gRPC for fid {user_input}')
+        fid = int(user_input)
+        dataset = from_grpc(fid)
+        username = get_username(fid)
+        title = f'Follower count for {username}'
+        output_filename = f'{username}.png'
+        return dataset, title, output_filename
+
+
 def main():
     import sys
 
     user_input = sys.argv[1]
-    dataset = from_json_file(user_input) if os.path.exists(user_input) else from_grpc(int(user_input))
-
-    title = f'Follower count for {user_input}'
-    output_filename = user_input.replace('.json', '.png')
+    dataset, title, output_filename = load(user_input)
 
     buffer = generate_png(dataset, title)
     with open(output_filename, 'wb') as f:
